@@ -12,6 +12,6 @@ repos:
       -   id: terraform-docs
           name: Terraform Documentation
           description: Generates Terraform documentation and injects in Readme file
-          entry: quay.io/terraform-docs/terraform-docs
+          entry: quay.io/terraform-docs/terraform-docs markdown .
           language: docker_image
 #          files: Dockerfile
