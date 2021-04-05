@@ -11,7 +11,7 @@ resource "aws_ecs_task_definition" "mongo-task" {
   requires_compatibilities = ["EC2"]
 
   volume {
-    name = var.name
+    name      = var.name
     host_path = "/mongodb-data"
   }
   tags = var.tags

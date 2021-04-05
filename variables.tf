@@ -1,10 +1,10 @@
 variable "namespace" {
-  type = string
+  type        = string
   description = "Project namespace"
 }
 
 variable "environment" {
-  type = string
+  type        = string
   description = "Environment indicator where the MongoDB will be instantiated. E.g. Development, Staging, QA, Production"
 }
 
@@ -38,7 +38,7 @@ variable "instance_type" {
 variable "mongo_container_cpu" {
   type        = number
   description = "CPU capacity required for mongo container ( 1024 == 1 cpu)"
-  default = 1024
+  default     = 1024
 }
 
 variable "mongo_version" {
