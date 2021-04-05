@@ -13,7 +13,6 @@ variable "env_code" {
   description = "Short environment name tag (e.g. dev, stg, prod)"
 }
 
-
 variable "name" {
   type        = string
   description = "Base name for the cluster and other resources"
@@ -35,18 +34,18 @@ variable "instance_type" {
   description = "Type of ECS container instance type"
 }
 
-variable "mongo_container_cpu" {
+variable "mongodb_container_cpu" {
   type        = number
   description = "CPU capacity required for mongo container ( 1024 == 1 cpu)"
   default     = 1024
 }
 
-variable "mongo_version" {
+variable "mongodb_version" {
   type        = string
   description = "Docker image version of mongo"
 }
 
-variable "mongo_container_memory" {
+variable "mongodb_container_memory" {
   type        = number
   description = "Memory required for mongo container"
   default     = 1606
