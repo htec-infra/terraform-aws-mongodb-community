@@ -89,3 +89,19 @@ resource "aws_iam_role_policy_attachment" "ecs_tasks_execution_role" {
   role       = aws_iam_role.ecs_tasks_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
+
+resource "aws_iam_role_policy" "ecs_tasks_inline_role" {
+  role   = aws_iam_role.ecs_tasks_execution_role.id
+  policy = data.aws_iam_policy_document.mongodb_ecs_task_inline.json
+}
+
+data "aws_iam_policy_document" "mongodb_ecs_task_inline" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "ssm:DescribeParameters",
+      "ssm:GetParameters"
+    ]
+    resources = ["arn:aws:ssm:*:*:parameter/*"]
+  }
+}

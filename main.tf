@@ -81,3 +81,7 @@ module "primary_node" {
   instance_profile_arn = aws_iam_instance_profile.ecs_instance_profile.arn
   instance_type        = var.instance_type
 }
+
+// TODO: Add logs for ECS tasks
+
+// TODO: Security Group ruls
