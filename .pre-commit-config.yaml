@@ -9,9 +9,9 @@ repos:
       - id: terraform_fmt
   - repo: local
     hooks:
-      -   id: terraform-docs
-          name: Terraform Documentation
-          description: Generates Terraform documentation and injects in Readme file
-          entry: quay.io/terraform-docs/terraform-docs markdown .
-          language: docker_image
-#          files: Dockerfile
+      - id: terraform-docs
+        name: terraform-docs
+        language: docker_image
+        entry: quay.io/terraform-docs/terraform-docs:latest  # Or, change latest to pin to a specific version
+        args: ["--output-file", "README.md", "."]
+        pass_filenames: false
