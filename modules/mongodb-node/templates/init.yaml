@@ -2,5 +2,7 @@
 package_upgrade: true
 packages:
   - awscli
+cloud_final_modules:
+  - [scripts-user, always]
 runcmd:
   - echo ECS_CLUSTER=${cluster_name} >> /etc/ecs/ecs.config

@@ -51,9 +51,19 @@ variable "mongodb_container_memory" {
   default     = 1606
 }
 
-variable "security_group_id" {
-  type        = string
+variable "mongodb_node_ingress_sgs" {
+  type = list(object({
+    id : string
+    description : string
+  }))
+  default     = []
   description = "Security group id for container EC2 instance"
+}
+
+variable "mongodb_node_allow_intranet_access" {
+  type        = bool
+  default     = false
+  description = "Allow traffic between mongodb and applications inside the VPC"
 }
 
 variable "subnet_id" {

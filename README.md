@@ -49,12 +49,15 @@ module "mongodb_cluster" {
 | [aws_iam_role_policy_attachment.ecs_instance_role_policy_attach](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.ecs_instance_ssm_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.ecs_tasks_execution_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_security_group.mongodb](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_ssm_parameter.mongo_dba_password](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
 | [random_password.mongo_dba](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
 | [aws_iam_policy_document.ecs_instance_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.mongodb_ecs_task_inline](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.mongodb_node](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.mongodb_tasks_execution_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_subnet.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
+| [aws_vpc.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 | [template_file.mongodb_primary](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/file) | data source |
 
 ## Inputs
@@ -66,11 +69,12 @@ module "mongodb_cluster" {
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Type of ECS container instance type | `string` | n/a | yes |
 | <a name="input_mongodb_container_cpu"></a> [mongodb\_container\_cpu](#input\_mongodb\_container\_cpu) | CPU capacity required for mongo container ( 1024 == 1 cpu) | `number` | `1024` | no |
 | <a name="input_mongodb_container_memory"></a> [mongodb\_container\_memory](#input\_mongodb\_container\_memory) | Memory required for mongo container | `number` | `1606` | no |
+| <a name="input_mongodb_node_allow_intranet_access"></a> [mongodb\_node\_allow\_intranet\_access](#input\_mongodb\_node\_allow\_intranet\_access) | Allow traffic between mongodb and applications inside the VPC | `bool` | `false` | no |
+| <a name="input_mongodb_node_ingress_sgs"></a> [mongodb\_node\_ingress\_sgs](#input\_mongodb\_node\_ingress\_sgs) | Security group id for container EC2 instance | <pre>list(object({<br>    id : string<br>    description : string<br>  }))</pre> | `[]` | no |
 | <a name="input_mongodb_version"></a> [mongodb\_version](#input\_mongodb\_version) | Docker image version of mongo | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | Base name for the cluster and other resources | `string` | n/a | yes |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | Project namespace | `string` | n/a | yes |
 | <a name="input_region"></a> [region](#input\_region) | Region in which resources should be created | `string` | n/a | yes |
-| <a name="input_security_group_id"></a> [security\_group\_id](#input\_security\_group\_id) | Security group id for container EC2 instance | `string` | n/a | yes |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | Subnet id for container EC2 instance | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Default tags to be attached for every resource in the module | `map(string)` | `{}` | no |
 
