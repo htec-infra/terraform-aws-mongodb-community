@@ -1,14 +1,18 @@
+locals {
+  iam_prefix = "${var.namespace}${title(var.env_code)}"
+}
+
 /**
  * Instance profile for instances launched by autoscaling
  */
 
 resource "aws_iam_instance_profile" "ecs_instance_profile" {
-  name = "${var.namespace}MongoDbInstanceProfile"
+  name = "${local.iam_prefix}MongoDbInstanceProfile"
   role = aws_iam_role.ecs_instance_role.name
 }
 
 resource "aws_iam_role" "ecs_instance_role" {
-  name               = "${var.namespace}MongoDbInstanceRole"
+  name               = "${local.iam_prefix}MongoDbInstanceRole"
   assume_role_policy = data.aws_iam_policy_document.ecs_instance_role.json
 }
 
@@ -81,7 +85,7 @@ data "aws_iam_policy_document" "mongodb_tasks_execution_role" {
 }
 
 resource "aws_iam_role" "ecs_tasks_execution_role" {
-  name               = "${var.namespace}MongoDbTasksExecutionRole"
+  name               = "${local.iam_prefix}MongoDbTasksExecutionRole"
   assume_role_policy = data.aws_iam_policy_document.mongodb_tasks_execution_role.json
 }
 

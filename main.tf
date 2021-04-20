@@ -1,31 +1,25 @@
 locals {
-  instance_name        = var.name
-  mongodb_password_src = "/${var.namespace}/mongodb/dba/password"
+  instance_name = var.name
 
-  volume_name      = "${var.name}-volume"
-  host_mount_point = "/mongodb-data"
+  resource_suffix = var.resource_name_with_env_suffix ? var.env_code : ""
+
+  cluster_name = join("-", compact([
+    lower(var.namespace), "mongodb", local.resource_suffix
+  ]))
+
+  mongodb_password_ssm_path = "/${local.cluster_name}/dba/password"
 }
 
 data "aws_subnet" "this" {
-  id = var.subnet_id
+  id = var.mongodb_nodes.0.subnet_id
 }
 
 data "aws_vpc" "this" {
   id = data.aws_subnet.this.vpc_id
 }
 
-resource "aws_ssm_parameter" "mongo_dba_password" {
-  name  = local.mongodb_password_src
-  type  = "SecureString"
-  value = random_password.mongo_dba.result
-}
-
-resource "random_password" "mongo_dba" {
-  length = 32
-}
-
 resource "aws_ecs_cluster" "mongodb" {
-  name = var.name
+  name = local.cluster_name
   setting {
     name  = "containerInsights"
     value = "enabled"
@@ -38,51 +32,28 @@ resource "aws_ecs_cluster" "mongodb" {
 
 }
 
-resource "aws_ecs_task_definition" "mongodb_primary" {
-  container_definitions    = data.template_file.mongodb_primary.rendered
-  family                   = var.name
-  network_mode             = "bridge"
-  requires_compatibilities = ["EC2"]
-  execution_role_arn       = aws_iam_role.ecs_tasks_execution_role.arn
+########
+# Primary node credentials
+########
 
-  volume {
-    name      = local.volume_name
-    host_path = local.host_mount_point
-  }
-
-  tags = var.tags
+resource "random_password" "mongo_dba" {
+  length  = 32
+  special = false
 }
 
-resource "aws_ecs_service" "mongodb_primary" {
-  name                               = "${var.name}-primary"
-  cluster                            = aws_ecs_cluster.mongodb.arn
-  task_definition                    = aws_ecs_task_definition.mongodb_primary.arn
-  desired_count                      = 1
-  deployment_minimum_healthy_percent = 0
-  deployment_maximum_percent         = 100
-  launch_type                        = "EC2"
+resource "aws_ssm_parameter" "mongo_dba_password" {
+  name  = local.mongodb_password_ssm_path
+  type  = "SecureString"
+  value = random_password.mongo_dba.result
 }
 
-data "template_file" "mongodb_primary" {
-  template = file("${path.module}/modules/mongodb-node/templates/taskdef-mongo.tpl")
-
-  vars = {
-    mongodb_password_src     = local.mongodb_password_src
-    mongodb_version          = var.mongodb_version
-    mongodb_container_cpu    = var.mongodb_container_cpu
-    mongodb_container_memory = var.mongodb_container_memory
-    volume_name              = local.volume_name
-  }
-
-  depends_on = [aws_ssm_parameter.mongo_dba_password]
-}
 
 ########
 # Security Groups
 ########
 
 resource "aws_security_group" "mongodb" {
-  name_prefix = "${lower(var.namespace)}-mongodb"
+  name_prefix = aws_ecs_cluster.mongodb.name
   vpc_id      = data.aws_subnet.this.vpc_id
 
   egress {
@@ -118,25 +89,38 @@ resource "aws_security_group" "mongodb" {
 }
 
 
-########
-# MongoDB Nodes
-########
 
-
-module "primary_node" {
+//noinspection HILUnresolvedReference
+module "mongodb_nodes" {
   source = "./modules/mongodb-node"
+
+  for_each = {
+    for index, node in var.mongodb_nodes : node.unique_name => node
+  }
 
   namespace   = var.namespace
   env_code    = var.env_code
   environment = var.environment
 
-  name                 = var.name
-  subnet_id            = var.subnet_id
-  instance_type        = var.instance_type
-  instance_profile_arn = aws_iam_instance_profile.ecs_instance_profile.arn
+  name                   = each.value.unique_name
+  subnet_id              = each.value.subnet_id
+  instance_type          = var.instance_type
+  ecs_cluster_name       = aws_ecs_cluster.mongodb.name
+  ecs_execution_role_arn = aws_iam_role.ecs_tasks_execution_role.arn
+  instance_profile_arn   = aws_iam_instance_profile.ecs_instance_profile.arn
   additional_security_group_ids = [
     aws_security_group.mongodb.id
   ]
-}
+  mongodb_node_type    = each.value.type
+  mongodb_storage_size = var.mongodb_storage_size
+  mongodb_version      = var.mongodb_version
 
-// TODO: Add logs for ECS tasks
+  mongodb_container_cpu    = var.mongodb_container_cpu
+  mongodb_container_memory = var.mongodb_container_memory
+
+  tags = var.tags
+
+  depends_on = [
+    aws_ecs_cluster.mongodb
+  ]
+}

@@ -18,20 +18,29 @@ variable "name" {
   description = "Base name for the cluster and other resources"
 }
 
+variable "resource_name_with_env_suffix" {
+  type    = bool
+  default = false
+}
+
 variable "tags" {
   type        = map(string)
   description = "Default tags to be attached for every resource in the module"
   default     = {}
 }
 
-variable "region" {
-  type        = string
-  description = "Region in which resources should be created"
-}
-
 variable "instance_type" {
   type        = string
   description = "Type of ECS container instance type"
+}
+
+variable "mongodb_nodes" {
+  type = list(object({
+    type : string,
+    unique_name : string,
+    subnet_id : string,
+  }))
+  description = ""
 }
 
 variable "mongodb_container_cpu" {
@@ -66,7 +75,8 @@ variable "mongodb_node_allow_intranet_access" {
   description = "Allow traffic between mongodb and applications inside the VPC"
 }
 
-variable "subnet_id" {
-  type        = string
-  description = "Subnet id for container EC2 instance"
+variable "mongodb_storage_size" {
+  type        = number
+  default     = 50
+  description = "Size (GB) of the dedicated EBS for mongodb data"
 }
