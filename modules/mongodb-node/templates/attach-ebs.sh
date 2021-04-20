@@ -36,7 +36,7 @@ until [ "$DATA_STATE" == "attached" ]; do
 done
 
 # Format ${DEVICE_ID} if it does not contain a partition yet
-if [ "$(file -b -s ${DEVICE_ID})" == "data" ]; then
+if [ "$(file -b -s -L ${DEVICE_ID})" == "data" ]; then
   echo "No partition. Device will be formatted in ext4."
   mkfs -t ext4 "${DEVICE_ID}"
 fi
@@ -46,3 +46,8 @@ mount "${DEVICE_ID}" "${MOUNT_POINT}"
 
 # Persist the volume in /etc/fstab so it gets mounted again
 echo '${DEVICE_ID} ${MOUNT_POINT} ext4 defaults,nofail 0 2' | tee -a /etc/fstab
+
+sleep 3
+
+# Change permissions or the MountPoint subtree
+chown 1001:root -R "${MOUNT_POINT}"

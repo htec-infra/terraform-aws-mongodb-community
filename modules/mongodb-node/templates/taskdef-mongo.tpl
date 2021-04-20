@@ -1,20 +1,16 @@
 [
   {
     "name": "mongodb",
-    "image": "docker.io/mongo:${mongodb_version}",
+    "image": "bitnami/mongodb:${mongodb_version}",
     "cpu": ${mongodb_container_cpu},
     "memory": ${mongodb_container_memory},
+    "volumesFrom": [],
     "essential": true,
-    "environment": [{
-       "name": "MONGO_INITDB_ROOT_USERNAME",
-       "value": "mongo_dba"
-    }],
-    "secrets": [{
-        "name": "MONGO_INITDB_ROOT_PASSWORD",
-        "valueFrom": "${mongodb_password_src}"
-    }],
+    "environment": ${envs},
+    "secrets": ${secrets},
     "portMappings": [
       {
+        "protocol": "tcp",
         "containerPort": 27017,
         "hostPort": 27017
       }
@@ -22,8 +18,16 @@
     "mountPoints": [
       {
         "sourceVolume": "${volume_name}",
-        "containerPath": "/data/db"
+        "containerPath": "/bitnami/mongodb"
       }
-    ]
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${loggroup_path}",
+        "awslogs-region": "${app_region}",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
   }
 ]

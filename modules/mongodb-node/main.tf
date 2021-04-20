@@ -1,18 +1,17 @@
 locals {
-  name_prefix = "mongo-${var.mongo_node_type}"
+  HandlerId = random_password.node_id.result
 
-  mongodb_ebs_tags = {
-    Name        = "MongoDB Primary EBS"
-    Environment = var.environment
-    HandlerId   = random_password.node_id.result
-  }
+  mongodb_ebs_tags = merge(var.tags, {
+    Name      = "MongoDB ${title(var.mongodb_node_type)} EBS"
+    HandlerId = local.HandlerId
+  })
 
-  mongodb_node_tags = {
-    Name        = "MongoDB ${title(var.mongo_node_type)} Node"
-    Environment = var.environment
-    HandlerId   = random_password.node_id.result
-  }
+  mongodb_node_tags = merge(var.tags, {
+    Name      = "MongoDB ${title(var.mongodb_node_type)} Node"
+    HandlerId = local.HandlerId
+  })
 
+  name_prefix     = join("-", [var.ecs_cluster_name, var.name, ""])
   ec2_ebs_device  = "/dev/xvdt"
   ebs_mount_point = "/mongodb-data"
 }
@@ -41,14 +40,14 @@ data "template_cloudinit_config" "user_data" {
     filename     = "init.cfg"
     content_type = "text/cloud-config"
     content = templatefile("${path.module}/templates/init.yaml", {
-      cluster_name = var.name
+      cluster_name = var.ecs_cluster_name
     })
   }
   part {
     filename     = "attach-ebs.sh"
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/templates/attach-ebs.sh", {
-      VOLUME_HANDLER_ID = local.mongodb_ebs_tags.HandlerId
+      VOLUME_HANDLER_ID = local.HandlerId
       MOUNT_POINT       = local.ebs_mount_point
       DEVICE_ID         = local.ec2_ebs_device
     })
@@ -56,7 +55,7 @@ data "template_cloudinit_config" "user_data" {
 }
 
 resource "aws_launch_template" "mongodb" {
-  name_prefix   = "${local.name_prefix}-"
+  name_prefix   = local.name_prefix
   image_id      = data.aws_ami.ecs.id
   instance_type = var.instance_type
 
@@ -83,7 +82,7 @@ resource "aws_launch_template" "mongodb" {
 }
 
 resource "aws_autoscaling_group" "mongodb" {
-  name_prefix      = "${lower(var.namespace)}-${local.name_prefix}-"
+  name_prefix      = local.name_prefix
   desired_capacity = 1
   max_size         = 1
   min_size         = 1
@@ -104,8 +103,12 @@ resource "aws_ebs_volume" "this" {
   count             = 1
   availability_zone = data.aws_subnet.this.availability_zone
   encrypted         = true
-  size              = 30
+  size              = var.mongodb_storage_size
   type              = "gp3"
 
   tags = local.mongodb_ebs_tags
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
