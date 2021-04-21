@@ -8,6 +8,12 @@ locals {
   ]))
 
   mongodb_password_ssm_path = "/${local.cluster_name}/dba/password"
+
+  tags = merge(var.tags, {
+    Environment = var.environment
+    CostCenter  = "Application"
+    Tenancy     = "Shared"
+  })
 }
 
 data "aws_subnet" "this" {
@@ -118,7 +124,7 @@ module "mongodb_nodes" {
   mongodb_container_cpu    = var.mongodb_container_cpu
   mongodb_container_memory = var.mongodb_container_memory
 
-  tags = var.tags
+  tags = local.tags
 
   depends_on = [
     aws_ecs_cluster.mongodb
