@@ -2,13 +2,41 @@
 
 ## Overview
 
-Community MongoDB Cluster for 
+Community MongoDB Cluster module developed on top of [Bitnami MongoDB](https://github.com/bitnami/bitnami-docker-mongodb) docker image. 
+Each node has dedicated AutoScaling group and EBS volume, so node-related changes will affect specific node only, not entire cluster.
+
+### Features
+ - Autoscaling group and EBS volume per node
+ - EC2 instance self-healing
+ - Mechanism for reattaching EBS volume after EC2 termination
+ - [WIP] Route53 auto update
 
 ## Usage
 
-```hcl
+```terraform
 module "mongodb_cluster" {
-  source = ""
+  source = "github.com/htec-infra/terraform-mongodb-community"
+
+  namespace                = "ProjectName"
+  environment              = "Development"
+  env_code                 = "dev"
+  name                     = "mongodb-cluster"
+  instance_type            = "t3.medium"
+  mongodb_version          = "4.4.5"
+  mongodb_storage_size     = 100
+  mongodb_container_cpu    = 2048
+  mongodb_container_memory = 3600
+
+  mongodb_nodes = [{
+    type: "primary",
+    unique_name: "mondgodb-master",
+    subnet_id:  "subnet-12345abcd"
+  }, {
+    type: "secondary",
+    unique_name: "mondgodb-replica",
+    subnet_id:  "subnet-67890efgh"    
+  }]
+
 }
 ```
 
