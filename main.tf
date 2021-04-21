@@ -8,6 +8,7 @@ locals {
   ]))
 
   mongodb_password_ssm_path = "/${local.cluster_name}/dba/password"
+  mongodb_primary_hostname  = "/${local.cluster_name}/primary/hostname"
 
   tags = merge(var.tags, {
     Environment = var.environment
@@ -53,6 +54,19 @@ resource "aws_ssm_parameter" "mongo_dba_password" {
   value = random_password.mongo_dba.result
 }
 
+########
+# Primary node hostname
+########
+
+resource "aws_ssm_parameter" "mongo_primary_hostname" {
+  name  = local.mongodb_primary_hostname
+  type  = "String"
+  value = "localhost"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
 
 ########
 # Security Groups

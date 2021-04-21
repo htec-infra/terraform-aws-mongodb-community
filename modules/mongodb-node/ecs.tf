@@ -56,7 +56,7 @@ resource "aws_cloudwatch_log_group" "mongodb_node" {
 
 resource "aws_ecs_task_definition" "mongodb_node" {
   container_definitions    = data.template_file.mongodb_primary.rendered
-  family                   = var.name
+  family                   = lower(join("-", [var.ecs_cluster_name, var.name]))
   network_mode             = "bridge"
   requires_compatibilities = ["EC2"]
   task_role_arn            = var.ecs_execution_role_arn
