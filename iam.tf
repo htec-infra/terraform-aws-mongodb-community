@@ -39,7 +39,7 @@ resource "aws_iam_role_policy_attachment" "ecs_instance_ssm_policy" {
 }
 
 resource "aws_iam_role_policy" "mongodb_node" {
-  name_prefix = "EbsAttachment-"
+  name_prefix = "ExtraPermissions-"
   role        = aws_iam_role.ecs_instance_role.id
   policy      = data.aws_iam_policy_document.mongodb_node.json
 }
@@ -66,6 +66,13 @@ data "aws_iam_policy_document" "mongodb_node" {
       "ec2:DescribeTags"
     ]
     resources = ["*"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "ssm:PutParameter"
+    ]
+    resources = ["arn:aws:ssm:*:*:parameter/${local.cluster_name}/*"]
   }
 }
 
@@ -104,8 +111,9 @@ data "aws_iam_policy_document" "mongodb_ecs_task_inline" {
     effect = "Allow"
     actions = [
       "ssm:DescribeParameters",
-      "ssm:GetParameters"
+      "ssm:GetParameters",
+      "ssm:PutParameter"
     ]
-    resources = ["arn:aws:ssm:*:*:parameter/*"]
+    resources = ["arn:aws:ssm:*:*:parameter/${local.cluster_name}/*"]
   }
 }

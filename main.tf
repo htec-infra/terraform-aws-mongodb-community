@@ -8,7 +8,8 @@ locals {
   ]))
 
   mongodb_password_ssm_path = "/${local.cluster_name}/dba/password"
-  mongodb_primary_hostname  = "/${local.cluster_name}/primary/hostname"
+
+  primary_node_name = compact([for node in var.mongodb_nodes : node.type == "primary" ? node.unique_name : ""])[0]
 
   tags = merge(var.tags, {
     Environment = var.environment
@@ -55,20 +56,6 @@ resource "aws_ssm_parameter" "mongo_dba_password" {
 }
 
 ########
-# Primary node hostname
-########
-
-resource "aws_ssm_parameter" "mongo_primary_hostname" {
-  name  = local.mongodb_primary_hostname
-  type  = "String"
-  value = "localhost"
-
-  lifecycle {
-    ignore_changes = [value]
-  }
-}
-
-########
 # Security Groups
 ########
 
@@ -84,11 +71,18 @@ resource "aws_security_group" "mongodb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  egress {
+    from_port   = 27017
+    protocol    = "TCP"
+    to_port     = 65345
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   dynamic "ingress" {
     for_each = var.mongodb_node_allow_intranet_access ? [1] : []
     content {
       from_port = 27017
-      to_port   = 27017
+      to_port   = 65345
       protocol  = "TCP"
       cidr_blocks = [
         data.aws_vpc.this.cidr_block
@@ -123,6 +117,7 @@ module "mongodb_nodes" {
   environment = var.environment
 
   name                   = each.value.unique_name
+  primary_node_name      = local.primary_node_name
   subnet_id              = each.value.subnet_id
   instance_type          = var.instance_type
   ecs_cluster_name       = aws_ecs_cluster.mongodb.name
