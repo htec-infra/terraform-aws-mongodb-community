@@ -26,7 +26,12 @@ variable "tags" {
 
 variable "name" {
   type        = string
-  description = "Base name for the cluster and other resources"
+  description = "Base name for the cluster's node"
+}
+
+variable "primary_node_name" {
+  type    = string
+  default = "primary"
 }
 
 variable "subnet_id" {

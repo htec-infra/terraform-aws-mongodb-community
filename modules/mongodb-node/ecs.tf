@@ -4,6 +4,8 @@ locals {
 
   loggroup_path = "/ecs/${var.ecs_cluster_name}/${var.name}"
 
+  hostname_ssm_path = "/${var.ecs_cluster_name}/${var.name}/hostname"
+
   node_envs = {
     standalone = [],
     primary = [{
@@ -17,9 +19,6 @@ locals {
       name : "MONGODB_REPLICA_SET_MODE",
       value : "secondary"
       }, {
-      name : "MONGODB_ADVERTISED_HOSTNAME",
-      value : var.name
-      }, {
       name : "MONGODB_REPLICA_SET_KEY",
       value : var.mongodb_replica_set_key
     }]
@@ -30,10 +29,16 @@ locals {
     primary = [{
       name : "MONGODB_ROOT_PASSWORD",
       valueFrom : "/${var.ecs_cluster_name}/dba/password"
+      }, {
+      name : "MONGODB_ADVERTISED_HOSTNAME",
+      valueFrom : local.hostname_ssm_path
     }],
     secondary = [{
+      name : "MONGODB_ADVERTISED_HOSTNAME",
+      valueFrom : local.hostname_ssm_path
+      }, {
       name : "MONGODB_INITIAL_PRIMARY_HOST",
-      valueFrom : "/${var.ecs_cluster_name}/primary/hostname"
+      valueFrom : "/${var.ecs_cluster_name}/${var.primary_node_name}/hostname"
       }, {
       name : "MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD",
       valueFrom : "/${var.ecs_cluster_name}/dba/password"
@@ -47,6 +52,20 @@ data "aws_ecs_cluster" "this" {
 
 data "aws_region" "this" {}
 
+########
+# Primary node hostname
+########
+
+resource "aws_ssm_parameter" "mongodb_node_hostname" {
+  name  = local.hostname_ssm_path
+  type  = "String"
+  value = var.name
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
 resource "aws_cloudwatch_log_group" "mongodb_node" {
   name = local.loggroup_path
 
@@ -57,7 +76,7 @@ resource "aws_cloudwatch_log_group" "mongodb_node" {
 resource "aws_ecs_task_definition" "mongodb_node" {
   container_definitions    = data.template_file.mongodb_primary.rendered
   family                   = lower(join("-", [var.ecs_cluster_name, var.name]))
-  network_mode             = "bridge"
+  network_mode             = "host"
   requires_compatibilities = ["EC2"]
   task_role_arn            = var.ecs_execution_role_arn
   execution_role_arn       = var.ecs_execution_role_arn

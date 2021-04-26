@@ -52,6 +52,14 @@ data "template_cloudinit_config" "user_data" {
       DEVICE_ID         = local.ec2_ebs_device
     })
   }
+  part {
+    filename     = "update-params.sh"
+    content_type = "text/x-shellscript"
+    content = templatefile("${path.module}/templates/update-params.sh", {
+      region            = data.aws_region.this.name
+      hostname_ssm_path = local.hostname_ssm_path
+    })
+  }
 }
 
 resource "aws_launch_template" "mongodb" {
@@ -109,6 +117,6 @@ resource "aws_ebs_volume" "this" {
   tags = local.mongodb_ebs_tags
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 }

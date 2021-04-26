@@ -8,13 +8,7 @@
     "essential": true,
     "environment": ${envs},
     "secrets": ${secrets},
-    "portMappings": [
-      {
-        "protocol": "tcp",
-        "containerPort": 27017,
-        "hostPort": 27017
-      }
-    ],
+    "portMappings": [],
     "mountPoints": [
       {
         "sourceVolume": "${volume_name}",

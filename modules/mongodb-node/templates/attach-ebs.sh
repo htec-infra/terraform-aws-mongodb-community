@@ -13,11 +13,12 @@ VOLUME_ID=$(aws ec2 describe-volumes \
 # attach volume to instance
 if [[ $VOLUME_ID == vol-* ]]; then
   echo "Volume Handler ID detected. Trying to attach the volume"
-  aws ec2 attach-volume \
+  ATTACH_STATE=$(aws ec2 attach-volume \
     --region "$REGION" \
     --device "${DEVICE_ID}" \
     --instance-id "$INSTANCE_ID" \
-    --volume-id "$VOLUME_ID"
+    --volume-id "$VOLUME_ID")
+  echo "Attachments: $ATTACH_STATE"
 else
   echo "VolumeId not found"
 fi
@@ -36,16 +37,15 @@ until [ "$DATA_STATE" == "attached" ]; do
 done
 
 # Format ${DEVICE_ID} if it does not contain a partition yet
-if [ "$(file -b -s -L ${DEVICE_ID})" == "data" ]; then
-  echo "No partition. Device will be formatted in ext4."
-  mkfs -t ext4 "${DEVICE_ID}"
+if [ "$(file -b -s -L ${DEVICE_ID} | grep -c -i xfs)" == "1" ]; then
+  echo "[DISK Partition] XFS Detected. Skipped"
+else
+  echo "[DISK Partition] No partition. Device will be formatted in ext4."
+  mkfs.xfs -f "${DEVICE_ID}"
 fi
 
 mkdir -p "${MOUNT_POINT}"
-mount "${DEVICE_ID}" "${MOUNT_POINT}"
-
-# Persist the volume in /etc/fstab so it gets mounted again
-echo '${DEVICE_ID} ${MOUNT_POINT} ext4 defaults,nofail 0 2' | tee -a /etc/fstab
+mount -t xfs "${DEVICE_ID}" "${MOUNT_POINT}"
 
 sleep 3
 
