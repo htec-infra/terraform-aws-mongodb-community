@@ -53,7 +53,7 @@ data "template_cloudinit_config" "user_data" {
     })
   }
   dynamic "part" {
-    for_each = var.service_discovery_namespace_id != null ? [1] : []
+    for_each = var.service_discovery_namespace_id == null ? [1] : []
     content {
       filename     = "update-params.sh"
       content_type = "text/x-shellscript"
