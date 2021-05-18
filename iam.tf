@@ -63,7 +63,9 @@ data "aws_iam_policy_document" "mongodb_node" {
       "ec2:DetachVolume",
       "ec2:ModifySnapshotAttribute",
       "ec2:ModifyVolumeAttribute",
-      "ec2:DescribeTags"
+      "ec2:DescribeTags",
+      "servicediscovery:RegisterInstance",
+      "servicediscovery:ListServices"
     ]
     resources = ["*"]
   }
@@ -115,14 +117,5 @@ data "aws_iam_policy_document" "mongodb_ecs_task_inline" {
       "ssm:PutParameter"
     ]
     resources = ["arn:aws:ssm:*:*:parameter/${local.cluster_name}/*"]
-  }
-
-  statement {
-    effect = "Allow"
-    actions = [
-      "servicediscovery:RegisterInstance",
-      "servicediscovery:ListServices"
-    ]
-    resources = ["*"]
   }
 }
