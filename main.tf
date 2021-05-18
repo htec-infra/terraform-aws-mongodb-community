@@ -133,6 +133,8 @@ module "mongodb_nodes" {
   mongodb_container_cpu    = var.mongodb_container_cpu
   mongodb_container_memory = var.mongodb_container_memory
 
+  service_discovery_namespace_id = var.service_discovery_namespace_id
+
   tags = local.tags
 
   depends_on = [

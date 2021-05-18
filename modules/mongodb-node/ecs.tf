@@ -74,9 +74,11 @@ resource "aws_cloudwatch_log_group" "mongodb_node" {
 }
 
 resource "aws_ecs_task_definition" "mongodb_node" {
-  container_definitions    = data.template_file.mongodb_primary.rendered
-  family                   = lower(join("-", [var.ecs_cluster_name, var.name]))
-  network_mode             = "host"
+  container_definitions = data.template_file.mongodb_primary.rendered
+  family                = lower(join("-", [var.ecs_cluster_name, var.name]))
+
+  network_mode = "awsvpc"
+
   requires_compatibilities = ["EC2"]
   task_role_arn            = var.ecs_execution_role_arn
   execution_role_arn       = var.ecs_execution_role_arn
@@ -89,6 +91,7 @@ resource "aws_ecs_task_definition" "mongodb_node" {
   tags = merge(var.tags, {})
 }
 
+
 resource "aws_ecs_service" "mongodb_node" {
   name                               = var.name
   cluster                            = data.aws_ecs_cluster.this.arn
@@ -97,6 +100,26 @@ resource "aws_ecs_service" "mongodb_node" {
   deployment_minimum_healthy_percent = 0
   deployment_maximum_percent         = 100
   launch_type                        = "EC2"
+
+  network_configuration {
+    assign_public_ip = false
+    subnets          = [var.subnet_id]
+    security_groups  = var.additional_security_group_ids
+  }
+
+  dynamic "service_registries" {
+    for_each = var.service_discovery_namespace_id != null ? [aws_service_discovery_service.mongodb_node[0]] : []
+
+    # Setting port is not supported whne using "host" or "bridge" network mode.
+    content {
+      registry_arn = service_registries.value.arn
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [desired_count]
+  }
+
 }
 
 data "template_file" "mongodb_primary" {
@@ -112,5 +135,28 @@ data "template_file" "mongodb_primary" {
 
     envs    = jsonencode(local.node_envs[var.mongodb_node_type])
     secrets = jsonencode(local.node_secrets[var.mongodb_node_type])
+  }
+}
+
+/**
+ * Create a new Service Discovery Service.
+ */
+resource "aws_service_discovery_service" "mongodb_node" {
+  count = var.service_discovery_namespace_id != null ? 1 : 0
+  name  = var.name
+
+  dns_config {
+    namespace_id = var.service_discovery_namespace_id
+
+    dns_records {
+      ttl  = var.service_discovery_dns_ttl
+      type = var.service_discovery_dns_record_type
+    }
+
+    routing_policy = var.service_discovery_routing_policy
+  }
+
+  health_check_custom_config {
+    failure_threshold = var.service_discovery_failure_threshold
   }
 }

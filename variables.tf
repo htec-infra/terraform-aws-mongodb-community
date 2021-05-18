@@ -80,3 +80,10 @@ variable "mongodb_storage_size" {
   default     = 50
   description = "Size (GB) of the dedicated EBS for mongodb data"
 }
+
+variable "service_discovery_namespace_id" {
+  description = "The ID of the namespace to use for DNS configuration."
+  type        = string
+  default     = null
+}
+

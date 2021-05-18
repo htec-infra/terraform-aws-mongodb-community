@@ -56,8 +56,8 @@ data "template_cloudinit_config" "user_data" {
     filename     = "update-params.sh"
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/templates/update-params.sh", {
-      region            = data.aws_region.this.name
       hostname_ssm_path = local.hostname_ssm_path
+      node_name         = var.name
     })
   }
 }
