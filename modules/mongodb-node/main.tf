@@ -52,12 +52,16 @@ data "template_cloudinit_config" "user_data" {
       DEVICE_ID         = local.ec2_ebs_device
     })
   }
-  part {
-    filename     = "update-params.sh"
-    content_type = "text/x-shellscript"
-    content = templatefile("${path.module}/templates/update-params.sh", {
-      hostname_ssm_path = local.hostname_ssm_path
-    })
+  dynamic "part" {
+    for_each = var.service_discovery_namespace_id != null ? [1] : []
+    content {
+      filename     = "update-params.sh"
+      content_type = "text/x-shellscript"
+      content = templatefile("${path.module}/templates/update-params.sh", {
+        hostname_ssm_path = local.hostname_ssm_path
+      })
+    }
+
   }
 }
 
