@@ -63,9 +63,7 @@ data "aws_iam_policy_document" "mongodb_node" {
       "ec2:DetachVolume",
       "ec2:ModifySnapshotAttribute",
       "ec2:ModifyVolumeAttribute",
-      "ec2:DescribeTags",
-      "servicediscovery:RegisterInstance",
-      "servicediscovery:ListServices"
+      "ec2:DescribeTags"
     ]
     resources = ["*"]
   }

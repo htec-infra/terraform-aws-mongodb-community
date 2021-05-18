@@ -57,7 +57,6 @@ data "template_cloudinit_config" "user_data" {
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/templates/update-params.sh", {
       hostname_ssm_path = local.hostname_ssm_path
-      node_name         = var.service_discovery_namespace_id != null ? var.name : ""
     })
   }
 }
