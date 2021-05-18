@@ -119,7 +119,7 @@ variable "service_discovery_dns_record_type" {
 variable "service_discovery_dns_ttl" {
   description = "The amount of time, in seconds, that you want DNS resolvers to cache the settings for this resource record set."
   type        = number
-  default     = 60
+  default     = 10
 }
 
 variable "service_discovery_routing_policy" {
