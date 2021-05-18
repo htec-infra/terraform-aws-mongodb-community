@@ -59,7 +59,7 @@ data "aws_region" "this" {}
 resource "aws_ssm_parameter" "mongodb_node_hostname" {
   name  = local.hostname_ssm_path
   type  = "String"
-  value = var.name
+  value = join(".", compact([var.name, var.private_root_domain]))
 
   lifecycle {
     ignore_changes = [value]

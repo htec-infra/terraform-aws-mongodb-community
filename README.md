@@ -100,6 +100,7 @@ module "mongodb_cluster" {
 | <a name="input_mongodb_version"></a> [mongodb\_version](#input\_mongodb\_version) | Docker image version of mongo | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | Base name for the cluster and other resources | `string` | n/a | yes |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | Project namespace | `string` | n/a | yes |
+| <a name="input_private_root_domain"></a> [private\_root\_domain](#input\_private\_root\_domain) | Service Discovery Domain name | `string` | `""` | no |
 | <a name="input_resource_name_with_env_suffix"></a> [resource\_name\_with\_env\_suffix](#input\_resource\_name\_with\_env\_suffix) | n/a | `bool` | `false` | no |
 | <a name="input_service_discovery_namespace_id"></a> [service\_discovery\_namespace\_id](#input\_service\_discovery\_namespace\_id) | The ID of the namespace to use for DNS configuration. | `string` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Default tags to be attached for every resource in the module | `map(string)` | `{}` | no |

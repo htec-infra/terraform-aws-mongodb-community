@@ -29,6 +29,11 @@ variable "name" {
   description = "Base name for the cluster's node"
 }
 
+variable "private_root_domain" {
+  type    = string
+  default = ""
+}
+
 variable "primary_node_name" {
   type    = string
   default = "primary"

@@ -134,6 +134,7 @@ module "mongodb_nodes" {
   mongodb_container_memory = var.mongodb_container_memory
 
   service_discovery_namespace_id = var.service_discovery_namespace_id
+  private_root_domain            = var.private_root_domain
 
   tags = local.tags
 

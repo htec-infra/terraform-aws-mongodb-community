@@ -87,3 +87,9 @@ variable "service_discovery_namespace_id" {
   default     = null
 }
 
+variable "private_root_domain" {
+  description = "Service Discovery Domain name"
+  type        = string
+  default     = ""
+}
+
