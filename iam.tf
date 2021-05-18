@@ -116,4 +116,13 @@ data "aws_iam_policy_document" "mongodb_ecs_task_inline" {
     ]
     resources = ["arn:aws:ssm:*:*:parameter/${local.cluster_name}/*"]
   }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "servicediscovery:RegisterInstance",
+      "servicediscovery:ListServices"
+    ]
+    resources = ["*"]
+  }
 }
