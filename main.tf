@@ -9,7 +9,8 @@ locals {
 
   mongodb_password_ssm_path = "/${local.cluster_name}/dba/password"
 
-  primary_node_name = compact([for node in var.mongodb_nodes : node.type == "primary" ? node.unique_name : ""])[0]
+  filter_primary_node = compact([for node in var.mongodb_nodes : node.type == "primary" ? node.unique_name : ""])
+  primary_node_name   = length(local.filter_primary_node) > 0 ? local.filter_primary_node[0] : ""
 
   tags = merge(var.tags, {
     Environment = var.environment
@@ -142,3 +143,4 @@ module "mongodb_nodes" {
     aws_ecs_cluster.mongodb
   ]
 }
+
