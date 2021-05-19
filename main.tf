@@ -10,7 +10,7 @@ locals {
   mongodb_password_ssm_path = "/${local.cluster_name}/dba/password"
 
   filter_primary_node = compact([for node in var.mongodb_nodes : node.type == "primary" ? node.unique_name : ""])
-  primary_node_name   = length(local.filter_primary_node) > 0 ? local.filter_primary_node[0] : ""
+  primary_node_name   = length(local.filter_primary_node) > 0 ? local.filter_primary_node[0] : "primary"
 
   tags = merge(var.tags, {
     Environment = var.environment
