@@ -34,6 +34,12 @@ variable "instance_type" {
   description = "Type of ECS container instance type"
 }
 
+variable "disable_mongodb_service" {
+  description = "Whether to run MongoDB service or not"
+  type        = bool
+  default     = false
+}
+
 variable "mongodb_nodes" {
   type = list(object({
     type : string,

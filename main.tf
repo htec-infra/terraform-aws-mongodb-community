@@ -23,10 +23,6 @@ data "aws_subnet" "this" {
   id = var.mongodb_nodes.0.subnet_id
 }
 
-data "aws_vpc" "this" {
-  id = data.aws_subnet.this.vpc_id
-}
-
 resource "aws_ecs_cluster" "mongodb" {
   name = local.cluster_name
   setting {
@@ -114,6 +110,8 @@ module "mongodb_nodes" {
   namespace   = var.namespace
   env_code    = var.env_code
   environment = var.environment
+
+  disable_mongodb_service = var.disable_mongodb_service
 
   name                   = each.value.unique_name
   primary_node_name      = local.primary_node_name

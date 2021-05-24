@@ -96,7 +96,7 @@ resource "aws_ecs_service" "mongodb_node" {
   name                               = var.name
   cluster                            = data.aws_ecs_cluster.this.arn
   task_definition                    = aws_ecs_task_definition.mongodb_node.arn
-  desired_count                      = 1
+  desired_count                      = var.disable_mongodb_service ? 0 : 1
   deployment_minimum_healthy_percent = 0
   deployment_maximum_percent         = 100
   launch_type                        = "EC2"

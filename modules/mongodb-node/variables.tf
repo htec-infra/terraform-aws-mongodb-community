@@ -95,6 +95,11 @@ variable "additional_security_group_ids" {
   description = "List of security groups attached to the MongoDB node"
 }
 
+variable "disable_mongodb_service" {
+  type    = bool
+  default = false
+}
+
 variable "ecs_cluster_name" {
   type = string
 }
