@@ -80,14 +80,12 @@ resource "aws_security_group" "mongodb" {
   }
 
   dynamic "ingress" {
-    for_each = var.mongodb_node_allow_intranet_access ? [1] : []
+    for_each = var.mongodb_node_ingress_cidr_block
     content {
-      from_port = 27017
-      to_port   = 65345
-      protocol  = "TCP"
-      cidr_blocks = [
-        data.aws_vpc.this.cidr_block
-      ]
+      from_port   = 27017
+      to_port     = 65345
+      protocol    = "TCP"
+      cidr_blocks = [ingress.value]
     }
   }
 

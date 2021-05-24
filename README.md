@@ -93,7 +93,7 @@ module "mongodb_cluster" {
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Type of ECS container instance type | `string` | n/a | yes |
 | <a name="input_mongodb_container_cpu"></a> [mongodb\_container\_cpu](#input\_mongodb\_container\_cpu) | CPU capacity required for mongo container ( 1024 == 1 cpu) | `number` | `1024` | no |
 | <a name="input_mongodb_container_memory"></a> [mongodb\_container\_memory](#input\_mongodb\_container\_memory) | Memory required for mongo container | `number` | `1606` | no |
-| <a name="input_mongodb_node_allow_intranet_access"></a> [mongodb\_node\_allow\_intranet\_access](#input\_mongodb\_node\_allow\_intranet\_access) | Allow traffic between mongodb and applications inside the VPC | `bool` | `false` | no |
+| <a name="input_mongodb_node_ingress_cidr_block"></a> [mongodb\_node\_ingress\_cidr\_block](#input\_mongodb\_node\_ingress\_cidr\_block) | Allow ingress traffic to the MongoDB node from specified IP CIDRs | `list(string)` | `[]` | no |
 | <a name="input_mongodb_node_ingress_sgs"></a> [mongodb\_node\_ingress\_sgs](#input\_mongodb\_node\_ingress\_sgs) | Security group id for container EC2 instance | <pre>list(object({<br>    id : string<br>    description : string<br>  }))</pre> | `[]` | no |
 | <a name="input_mongodb_nodes"></a> [mongodb\_nodes](#input\_mongodb\_nodes) | n/a | <pre>list(object({<br>    type : string,<br>    unique_name : string,<br>    subnet_id : string,<br>  }))</pre> | n/a | yes |
 | <a name="input_mongodb_storage_size"></a> [mongodb\_storage\_size](#input\_mongodb\_storage\_size) | Size (GB) of the dedicated EBS for mongodb data | `number` | `50` | no |

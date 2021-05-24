@@ -69,10 +69,10 @@ variable "mongodb_node_ingress_sgs" {
   description = "Security group id for container EC2 instance"
 }
 
-variable "mongodb_node_allow_intranet_access" {
-  type        = bool
-  default     = false
-  description = "Allow traffic between mongodb and applications inside the VPC"
+variable "mongodb_node_ingress_cidr_block" {
+  description = "Allow ingress traffic to the MongoDB node from specified IP CIDRs"
+  type        = list(string)
+  default     = []
 }
 
 variable "mongodb_storage_size" {
